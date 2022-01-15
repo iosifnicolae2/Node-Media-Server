@@ -42,6 +42,9 @@ class NodeTransSession extends EventEmitter {
       this.conf.mp4Flags = this.conf.mp4Flags ? this.conf.mp4Flags : '';
       let mp4FileName = dateFormat('yyyy-mm-dd-HH-MM-ss') + '.mp4';
       let mapMp4 = `${this.conf.mp4Flags}${ouPath}/${mp4FileName}|`;
+      if(this.conf.adaptiveBitrate) {
+        mapMp4 = `"${mapMp4}"`;
+      }
       mapStr += mapMp4;
       Logger.log('[Transmuxing MP4] ' + this.conf.streamPath + ' to ' + ouPath + '/' + mp4FileName);
     }
@@ -50,6 +53,9 @@ class NodeTransSession extends EventEmitter {
       let hlsFileName = 'index.m3u8';
       let mapHls = `${this.conf.hlsFlags}${ouPath}/${hlsFileName}|`;
       mapStr += mapHls;
+      if(this.conf.adaptiveBitrate) {
+        mapHls = `"${mapHls}"`;
+      }
       Logger.log('[Transmuxing HLS] ' + this.conf.streamPath + ' to ' + ouPath + '/' + hlsFileName);
     }
     if (this.conf.dash) {
@@ -57,6 +63,9 @@ class NodeTransSession extends EventEmitter {
       let dashFileName = 'index.mpd';
       let mapDash = `${this.conf.dashFlags}${ouPath}/${dashFileName}`;
       mapStr += mapDash;
+      if(this.conf.adaptiveBitrate) {
+        mapDash = `"${mapDash}"`;
+      }
       Logger.log('[Transmuxing DASH] ' + this.conf.streamPath + ' to ' + ouPath + '/' + dashFileName);
     }
     mkdirp.sync(ouPath);
