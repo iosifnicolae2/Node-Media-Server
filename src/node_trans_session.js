@@ -24,7 +24,7 @@ class NodeTransSession extends EventEmitter {
     let ouPath = `${this.conf.mediaroot}/${this.conf.streamApp}/${this.conf.streamName}`;    
     
     if(this.conf.adaptiveBitrate) {
-     ouPath += "/%v" 
+     ouPath = `${ouPath}/%v`;
     }
     
     let mapStr = '';
