@@ -27,51 +27,6 @@ class NodeTransSession extends EventEmitter {
      ouPath = `${ouPath}/%v`;
     }
     
-    let mapStr = '';
-
-    if (this.conf.rtmp && this.conf.rtmpApp) {
-      if (this.conf.rtmpApp === this.conf.streamApp) {
-        Logger.error('[Transmuxing RTMP] Cannot output to the same app.');
-      } else {
-        let rtmpOutput = `rtmp://127.0.0.1:${this.conf.rtmpPort}/${this.conf.rtmpApp}/${this.conf.streamName}`;
-      if (this.conf.mp4 || this.conf.hls || this.conf.dash) {
-        mapStr += `[f=flv]${rtmpOutput}|`;
-      } else {
-        mapStr += `[f=flv]${rtmpOutput}`;
-      }
-        Logger.log('[Transmuxing RTMP] ' + this.conf.streamPath + ' to ' + rtmpOutput);
-      }
-    }
-    if (this.conf.mp4) {
-      this.conf.mp4Flags = this.conf.mp4Flags ? this.conf.mp4Flags : '';
-      let mp4FileName = dateFormat('yyyy-mm-dd-HH-MM-ss') + '.mp4';
-      let mapMp4 = `${this.conf.mp4Flags}${ouPath}/${mp4FileName}|`;
-      if (this.conf.hls || this.conf.dash) {
-        mapStr += `${mapMp4}|`;
-      } else {
-        mapStr += `${mapMp4}`;
-      }
-      Logger.log('[Transmuxing MP4] ' + this.conf.streamPath + ' to ' + ouPath + '/' + mp4FileName);
-    }
-    if (this.conf.hls) {
-      this.conf.hlsFlags = this.conf.hlsFlags ? this.conf.hlsFlags : '';
-      let hlsFileName = 'index.m3u8';
-      let mapHls = `${this.conf.hlsFlags}${ouPath}/${hlsFileName}`;
-      if (this.conf.dash) {
-        mapStr += `${mapHls}|`;
-      } else {
-        mapStr += `${mapHls}`;
-      }
-      Logger.log('[Transmuxing HLS] ' + this.conf.streamPath + ' to ' + ouPath + '/' + hlsFileName);
-    }
-    if (this.conf.dash) {
-      this.conf.dashFlags = this.conf.dashFlags ? this.conf.dashFlags : '';
-      let dashFileName = 'index.mpd';
-      let mapDash = `${this.conf.dashFlags}${ouPath}/${dashFileName}`;
-      mapStr += mapDash;
-      Logger.log('[Transmuxing DASH] ' + this.conf.streamPath + ' to ' + ouPath + '/' + dashFileName);
-    }
-    mkdirp.sync(ouPath);
     let argv = ['-y', '-i', inPath];
     Array.prototype.push.apply(argv, ['-c:v', vc]);
     Array.prototype.push.apply(argv, this.conf.vcParam);
@@ -79,8 +34,48 @@ class NodeTransSession extends EventEmitter {
     Array.prototype.push.apply(argv, this.conf.acParam);
     Array.prototype.push.apply(argv, this.conf.mapParams || ['-map', '0:a?', '-map', '0:v?']);
     Array.prototype.push.apply(argv, ['-f', 'tee']);
-    Array.prototype.push.apply(argv, this.conf.outputParams || []);
-    Array.prototype.push.apply(argv, [mapStr]);
+
+    if (this.conf.rtmp && this.conf.rtmpApp) {
+      if (this.conf.rtmpApp === this.conf.streamApp) {
+        Logger.error('[Transmuxing RTMP] Cannot output to the same app.');
+      } else {
+        let rtmpOutput = `rtmp://127.0.0.1:${this.conf.rtmpPort}/${this.conf.rtmpApp}/${this.conf.streamName}`;        
+        Array.prototype.push.apply(argv, ['-f', 'rtmp',]);
+        Array.prototype.push.apply(argv, this.conf.rtmpParams || []);
+        Array.prototype.push.apply(argv, rtmpOutput);
+        
+        Logger.log('[Transmuxing RTMP] ' + this.conf.streamPath + ' to ' + rtmpOutput);
+      }
+    }
+    if (this.conf.mp4) {
+      this.conf.mp4Flags = this.conf.mp4Flags ? this.conf.mp4Flags : '';
+      let mp4FileName = dateFormat('yyyy-mm-dd-HH-MM-ss') + '.mp4';
+      Array.prototype.push.apply(argv, ['-f', 'mp4',]);
+      Array.prototype.push.apply(argv, this.conf.mp4Params || []);
+      Array.prototype.push.apply(argv, `${ouPath}/${mp4FileName}`);
+      
+      Logger.log('[Transmuxing MP4] ' + this.conf.streamPath + ' to ' + ouPath + '/' + mp4FileName);
+    }
+    if (this.conf.hls) {
+      let hlsFileName = 'index.m3u8';
+      Array.prototype.push.apply(argv, ['-f', 'hls',]);
+      Array.prototype.push.apply(argv, this.conf.hlsParams || []);
+      if(this.conf.adaptiveBitrate) {
+        Array.prototype.push.apply(argv, `${ouPath}/%v/${hlsFileName}`);
+      } else {
+        Array.prototype.push.apply(argv, `${ouPath}/${hlsFileName}`);
+      }
+      Logger.log('[Transmuxing HLS] ' + this.conf.streamPath + ' to ' + ouPath + '/' + hlsFileName);
+    }
+    if (this.conf.dash) {
+      this.conf.dashFlags = this.conf.dashFlags ? this.conf.dashFlags : '';
+      let dashFileName = 'index.mpd';
+      Array.prototype.push.apply(argv, ['-f', 'dash',]);
+      Array.prototype.push.apply(argv, this.conf.dashParams || []);
+      Array.prototype.push.apply(argv, `${ouPath}/${dashFileName}`);
+      Logger.log('[Transmuxing DASH] ' + this.conf.streamPath + ' to ' + ouPath + '/' + dashFileName);
+    }
+    mkdirp.sync(ouPath);
     argv = argv.filter((n) => { return n; }); //去空
     this.ffmpeg_exec = spawn(this.conf.ffmpeg, argv);
     this.ffmpeg_exec.on('error', (e) => {
