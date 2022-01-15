@@ -23,7 +23,7 @@ class NodeTransSession extends EventEmitter {
     let inPath = 'rtmp://127.0.0.1:' + this.conf.rtmpPort + this.conf.streamPath;
     let ouPath = `${this.conf.mediaroot}/${this.conf.streamApp}/${this.conf.streamName}`;    
     
-    if(this.confg.adaptiveBitrate) {
+    if(this.conf.adaptiveBitrate) {
      ouPath += "/%v" 
     }
     
