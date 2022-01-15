@@ -23,7 +23,9 @@ class NodeTransSession extends EventEmitter {
     let inPath = 'rtmp://127.0.0.1:' + this.conf.rtmpPort + this.conf.streamPath;
     let ouPath = `${this.conf.mediaroot}/${this.conf.streamApp}/${this.conf.streamName}`;    
         
-    let argv = ['-y', '-i', inPath];
+    let argv = ['-y'];
+    Array.prototype.push.apply(argv, this.conf.ffmpegParams);
+    Array.prototype.push.apply(argv, ['-i', inPath]);
     Array.prototype.push.apply(argv, ['-c:v', vc]);
     Array.prototype.push.apply(argv, this.conf.vcParams);
     Array.prototype.push.apply(argv, ['-c:a', ac]);
