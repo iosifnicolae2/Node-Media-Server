@@ -21,8 +21,8 @@ class NodeTransSession extends EventEmitter {
     let vc = this.conf.vc || 'copy';
     let ac = this.conf.ac || 'copy';
     let inPath = 'rtmp://127.0.0.1:' + this.conf.rtmpPort + this.conf.streamPath;
-    let ouPath = `${this.conf.mediaroot}/${this.conf.streamApp}/${this.conf.streamName}`;    
-        
+    let ouPath = `${this.conf.mediaroot}/${this.conf.streamApp}/${this.conf.streamName}`;
+
     let argv = ['-y'];
     Array.prototype.push.apply(argv, this.conf.ffmpegParams);
     Array.prototype.push.apply(argv, ['-i', inPath]);
@@ -31,17 +31,17 @@ class NodeTransSession extends EventEmitter {
     Array.prototype.push.apply(argv, ['-c:a', ac]);
     Array.prototype.push.apply(argv, this.conf.acParams);
     Array.prototype.push.apply(argv, this.conf.mapParams || ['-map', '0:a?', '-map', '0:v?']);
-    Array.prototype.push.apply(argv, ['-f', 'tee']);
+    // Array.prototype.push.apply(argv, ['-f', 'tee']);
 
     if (this.conf.rtmp && this.conf.rtmpApp) {
       if (this.conf.rtmpApp === this.conf.streamApp) {
         Logger.error('[Transmuxing RTMP] Cannot output to the same app.');
       } else {
-        let rtmpOutput = `rtmp://127.0.0.1:${this.conf.rtmpPort}/${this.conf.rtmpApp}/${this.conf.streamName}`;        
+        let rtmpOutput = `rtmp://127.0.0.1:${this.conf.rtmpPort}/${this.conf.rtmpApp}/${this.conf.streamName}`;
         Array.prototype.push.apply(argv, ['-f', 'rtmp',]);
         Array.prototype.push.apply(argv, this.conf.rtmpParams || []);
         Array.prototype.push.apply(argv, [rtmpOutput]);
-        
+
         Logger.log('[Transmuxing RTMP] ' + this.conf.streamPath + ' to ' + rtmpOutput);
       }
     }
@@ -51,7 +51,7 @@ class NodeTransSession extends EventEmitter {
       Array.prototype.push.apply(argv, ['-f', 'mp4',]);
       Array.prototype.push.apply(argv, this.conf.mp4Params || []);
       Array.prototype.push.apply(argv, [`${ouPath}/${mp4FileName}`]);
-      
+
       Logger.log('[Transmuxing MP4] ' + this.conf.streamPath + ' to ' + ouPath + '/' + mp4FileName);
     }
     if (this.conf.hls) {
@@ -75,7 +75,7 @@ class NodeTransSession extends EventEmitter {
     }
     mkdirp.sync(ouPath);
     argv = argv.filter((n) => { return n; }); //去空
-    this.ffmpeg_exec = spawn(this.conf.ffmpeg, argv);
+    this.ffmpeg_exec = spawn(this.conf.ffmpeg, argv, { shell: true });
     Logger.ffdebug(`Starting：${this.conf.ffmpeg} ${JSON.stringify(argv)}`);
     this.ffmpeg_exec.on('error', (e) => {
       Logger.ffdebug(e);
