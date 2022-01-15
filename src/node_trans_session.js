@@ -77,8 +77,8 @@ class NodeTransSession extends EventEmitter {
     Array.prototype.push.apply(argv, this.conf.vcParam);
     Array.prototype.push.apply(argv, ['-c:a', ac]);
     Array.prototype.push.apply(argv, this.conf.acParam);
-    Array.prototype.push.apply(argv, ['-f', 'tee']);
     Array.prototype.push.apply(argv, this.conf.mapParams || ['-map', '0:a?', '-map', '0:v?']);
+    Array.prototype.push.apply(argv, ['-f', 'tee']);
     Array.prototype.push.apply(argv, this.conf.outputParams || []);
     Array.prototype.push.apply(argv, [mapStr]);
     argv = argv.filter((n) => { return n; }); //去空
