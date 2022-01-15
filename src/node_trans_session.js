@@ -42,7 +42,7 @@ class NodeTransSession extends EventEmitter {
         let rtmpOutput = `rtmp://127.0.0.1:${this.conf.rtmpPort}/${this.conf.rtmpApp}/${this.conf.streamName}`;        
         Array.prototype.push.apply(argv, ['-f', 'rtmp',]);
         Array.prototype.push.apply(argv, this.conf.rtmpParams || []);
-        Array.prototype.push.apply(argv, rtmpOutput);
+        Array.prototype.push.apply(argv, [rtmpOutput]);
         
         Logger.log('[Transmuxing RTMP] ' + this.conf.streamPath + ' to ' + rtmpOutput);
       }
@@ -52,7 +52,7 @@ class NodeTransSession extends EventEmitter {
       let mp4FileName = dateFormat('yyyy-mm-dd-HH-MM-ss') + '.mp4';
       Array.prototype.push.apply(argv, ['-f', 'mp4',]);
       Array.prototype.push.apply(argv, this.conf.mp4Params || []);
-      Array.prototype.push.apply(argv, `${ouPath}/${mp4FileName}`);
+      Array.prototype.push.apply(argv, [`${ouPath}/${mp4FileName}`]);
       
       Logger.log('[Transmuxing MP4] ' + this.conf.streamPath + ' to ' + ouPath + '/' + mp4FileName);
     }
@@ -61,9 +61,9 @@ class NodeTransSession extends EventEmitter {
       Array.prototype.push.apply(argv, ['-f', 'hls',]);
       Array.prototype.push.apply(argv, this.conf.hlsParams || []);
       if(this.conf.adaptiveBitrate) {
-        Array.prototype.push.apply(argv, `${ouPath}/%v/${hlsFileName}`);
+        Array.prototype.push.apply(argv, [`${ouPath}/%v/${hlsFileName}`]);
       } else {
-        Array.prototype.push.apply(argv, `${ouPath}/${hlsFileName}`);
+        Array.prototype.push.apply(argv, [`${ouPath}/${hlsFileName}`]);
       }
       Logger.log('[Transmuxing HLS] ' + this.conf.streamPath + ' to ' + ouPath + '/' + hlsFileName);
     }
@@ -72,7 +72,7 @@ class NodeTransSession extends EventEmitter {
       let dashFileName = 'index.mpd';
       Array.prototype.push.apply(argv, ['-f', 'dash',]);
       Array.prototype.push.apply(argv, this.conf.dashParams || []);
-      Array.prototype.push.apply(argv, `${ouPath}/${dashFileName}`);
+      Array.prototype.push.apply(argv, [`${ouPath}/${dashFileName}`]);
       Logger.log('[Transmuxing DASH] ' + this.conf.streamPath + ' to ' + ouPath + '/' + dashFileName);
     }
     mkdirp.sync(ouPath);
