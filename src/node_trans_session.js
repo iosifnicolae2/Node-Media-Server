@@ -76,7 +76,7 @@ class NodeTransSession extends EventEmitter {
     mkdirp.sync(ouPath);
     argv = argv.filter((n) => { return n; }); //去空
     this.ffmpeg_exec = spawn(this.conf.ffmpeg, argv);
-    Logger.ffdebug(`Starting：${this.confg.ffmpeg} ${JSON.stringify(argv)}`);
+    Logger.ffdebug(`Starting：${this.conf.ffmpeg} ${JSON.stringify(argv)}`);
     this.ffmpeg_exec.on('error', (e) => {
       Logger.ffdebug(e);
     });
