@@ -22,11 +22,7 @@ class NodeTransSession extends EventEmitter {
     let ac = this.conf.ac || 'copy';
     let inPath = 'rtmp://127.0.0.1:' + this.conf.rtmpPort + this.conf.streamPath;
     let ouPath = `${this.conf.mediaroot}/${this.conf.streamApp}/${this.conf.streamName}`;    
-    
-    if(this.conf.adaptiveBitrate) {
-     ouPath = `${ouPath}/%v`;
-    }
-    
+        
     let argv = ['-y', '-i', inPath];
     Array.prototype.push.apply(argv, ['-c:v', vc]);
     Array.prototype.push.apply(argv, this.conf.vcParams);
